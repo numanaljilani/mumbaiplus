@@ -10,7 +10,7 @@ const breakingNews = [
     id: 1,
     title: "दादर में अवैध हॉकर ज़ोन हटाने की मांग तेज़",
     excerpt: "स्थानीय नागरिकों ने BMC पर लगाया पक्षपात का आरोप, आज शाम धरना",
-    image: "https://www.freepik.com/free-vector/gradient-breaking-news-background_151171591.htm#fromView=keyword&page=1&position=3&uuid=db6d2239-06b8-41ec-9b1d-08ee2d50b1a7&query=News",
+    image: "/bg.jpg",
     date: "15 मिनट पहले",
     category: "दादर"
   },
@@ -18,7 +18,7 @@ const breakingNews = [
     id: 2,
     title: "अंधेरी ईस्ट में पानी की भारी किल्लत, लोग टैंकर पर निर्भर",
     excerpt: "पिछले 5 दिनों से नल में पानी नहीं, BMC अधिकारी मौन",
-    image: "https://www.freepik.com/free-vector/gradient-breaking-news-background_151171591.htm#fromView=keyword&page=1&position=3&uuid=db6d2239-06b8-41ec-9b1d-08ee2d50b1a7&query=News",
+    image: "/bg.jpg",
     date: "1 घंटा पहले",
     category: "अंधेरी"
   },
@@ -26,7 +26,7 @@ const breakingNews = [
     id: 3,
     title: "घाटकोपर में नया फ्लाईओवर 6 महीने देरी से खुलेगा",
     excerpt: "ठेकेदार पर लगे भ्रष्टाचार के आरोप, जांच शुरू",
-    image: "https://www.freepik.com/free-vector/gradient-breaking-news-background_151171591.htm#fromView=keyword&page=1&position=3&uuid=db6d2239-06b8-41ec-9b1d-08ee2d50b1a7&query=News",
+    image: "/bg.jpg",
     date: "2 घंटे पहले",
     category: "घाटकोपर"
   }

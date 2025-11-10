@@ -5,19 +5,19 @@ import Link from 'next/link';
 const slides = [
   {
     id: 1,
-    image: 'https://www.freepik.com/free-vector/gradient-breaking-news-background_151171591.htm#fromView=keyword&page=1&position=3&uuid=db6d2239-06b8-41ec-9b1d-08ee2d50b1a7&query=News',
+    image: '/bg.jpg',
     title: 'Global Summit Addresses Climate Change Crisis',
     category: 'World News'
   },
   {
     id: 2,
-    image: 'https://www.freepik.com/free-vector/gradient-breaking-news-background_151171591.htm#fromView=keyword&page=1&position=3&uuid=db6d2239-06b8-41ec-9b1d-08ee2d50b1a7&query=News',
+    image: '/bg.jpg',
     title: 'Tech Giants Announce Breakthrough in AI Technology',
     category: 'Technology'
   },
   {
     id: 3,
-    image: 'https://www.freepik.com/free-vector/gradient-breaking-news-background_151171591.htm#fromView=keyword&page=1&position=3&uuid=db6d2239-06b8-41ec-9b1d-08ee2d50b1a7&query=News',
+    image: '/bg.jpg',
     title: 'National Team Wins Championship After Dramatic Final',
     category: 'Sports'
   }
