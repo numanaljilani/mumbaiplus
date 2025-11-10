@@ -1,37 +1,38 @@
-"use client"
-import { useState, useEffect } from 'react'
+'use client';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 const slides = [
   {
     id: 1,
-    image: 'https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-    title: 'Breaking: Global Summit Addresses Climate Change Crisis',
+    image: 'https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+    title: 'Global Summit Addresses Climate Change Crisis',
     category: 'World News'
   },
   {
     id: 2,
-    image: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80',
+    image: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80',
     title: 'Tech Giants Announce Breakthrough in AI Technology',
     category: 'Technology'
   },
   {
     id: 3,
-    image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
+    image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
     title: 'National Team Wins Championship After Dramatic Final',
     category: 'Sports'
   }
-]
+];
 
 export default function HeroSlider() {
-  const [currentSlide, setCurrentSlide] = useState(0)
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length)
-    }, 5000)
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="relative h-96 md:h-[500px] overflow-hidden">
@@ -48,15 +49,18 @@ export default function HeroSlider() {
           >
             <div className="absolute inset-0 bg-black bg-opacity-50"></div>
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-              <span className="bg-secondary px-3 py-1 rounded-full text-sm font-medium mb-4 inline-block">
+              <span className="bg-red-600 px-3 py-1 rounded-full text-sm font-medium mb-4 inline-block">
                 {slide.category}
               </span>
               <h2 className="text-2xl md:text-4xl font-bold mb-4 max-w-3xl">
                 {slide.title}
               </h2>
-              <button className="bg-primary hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium">
+              <Link 
+                href={`/news/${slide.id}`}
+                className="bg-blue-800 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium inline-block"
+              >
                 Read Full Story
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -75,5 +79,5 @@ export default function HeroSlider() {
         ))}
       </div>
     </div>
-  )
+  );
 }
