@@ -7,14 +7,20 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // मेनू आइटम्स — category वाले → /news?category=, बाकी अलग पेज
-  const menuItems = [
-    { label: 'होम', category: 'home' },           // /news?category=home
-    { label: 'मुंबई', category: 'mumbai' },       // /news?category=mumbai
-    { label: 'महाराष्ट्र', category: 'maharashtra' }, // /news?category=maharashtra
-    { label: 'गेम्स', category: 'games' },       // /news?category=games
-    { label: 'ई-पेपर', href: '/epaper' },         // अलग पेज
-    { label: 'मेम्बर बनें', href: '/member', isButton: true }, // अलग पेज + बटन
-  ];
+const menuItems = [
+  { label: 'होम', category: 'home' },
+  { label: 'मुंबई', category: 'mumbai' },
+  { label: 'महाराष्ट्र', category: 'maharashtra' },
+  { label: 'गेम्स', category: 'games' },
+
+  // Static pages
+  { label: 'ई-पेपर', href: '/epaper' },
+  { label: 'हमारे बारे में', href: '/about' },
+  { label: 'संपर्क करें', href: '/contact' },
+
+  // Button item
+  { label: 'मेम्बर बनें', href: '/member', isButton: true }
+];
 
   return (
     <header className="bg-white shadow-2xl sticky top-0 z-50">

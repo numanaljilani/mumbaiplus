@@ -1,228 +1,175 @@
-"use client"
-import Header from '../../components/Header'
-import Footer from '../../components/Footer'
-import Head from 'next/head'
-import { useState } from 'react'
+// app/contact/page.jsx
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Link from 'next/link';
+import Image from 'next/image';
 
-export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  })
+export const metadata = {
+  title: 'संपर्क करें - मुंबई प्लस | आपकी आवाज़ तक पहुँचें',
+  description: 'मुंबई प्लस से संपर्क करें। खबर भेजें, शिकायत दर्ज करें, विज्ञापन या सदस्यता के लिए बात करें।',
+};
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Handle form submission here
-    console.log('Form submitted:', formData)
-    alert('Thank you for your message! We will get back to you soon.')
-    setFormData({ name: '', email: '', subject: '', message: '' })
-  }
-
+export default function ContactPage() {
   return (
-    <>
-      <Head>
-        <title>Contact Us - NewsHub</title>
-        <meta name="description" content="Get in touch with NewsHub team" />
-      </Head>
-      
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        
-        <main className="py-12">
-          {/* Hero Section */}
-          <div className="bg-primary text-white py-16">
-            <div className="container mx-auto px-4 text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
-              <p className="text-xl opacity-90 max-w-2xl mx-auto">
-                We'd love to hear from you. Get in touch with our team for any inquiries or feedback.
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white font-mumbai">
+      <Header />
+
+      <main className="py-12 md:py-16">
+        <div className="container mx-auto px-4 max-w-6xl">
+
+          {/* हीरो सेक्शन */}
+          <section className="text-center mb-16">
+            <h1 className="text-4xl md:text-6xl font-bold text-[#ee73c4] mb-6">
+              संपर्क करें
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto">
+              आपकी खबर, आपकी शिकायत, आपकी आवाज़ — हमें भेजें।<br />
+              हम 24 घंटे के अंदर जवाब देंगे!
+            </p>
+          </section>
+
+          {/* मुख्य कॉन्टैक्ट कार्ड्स */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+
+            {/* खबर भेजें */}
+            <div className="bg-white rounded-3xl shadow-2xl p-8 text-center hover:shadow-3xl transition">
+              <div className="text-6xl mb-4">News</div>
+              <h3 className="text-2xl font-bold text-[#ee73c4] mb-4">खबर भेजें</h3>
+              <p className="text-gray-600 mb-6">
+                अपने वार्ड की खबर, फोटो, वीडियो या घटना हमारे साथ शेयर करें
+              </p>
+              <div className="space-y-4">
+                <Link
+                  href="https://wa.me/919594939595?text=नमस्ते%20मुंबई%20प्लस!%20मैं%20अपने%20इलाके%20की%20खबर%20भेज%20रहा/रही%20हूँ..."
+                  target="_blank"
+                  className="block bg-green-500 text-white py-4 rounded-full font-bold text-lg hover:bg-green-600 transition shadow-lg"
+                >
+                  WhatsApp पर भेजें
+                </Link>
+                <Link
+                  href="mailto:mumbaiplusnews@gmail.com?subject=खबर%20भेजी%20गई"
+                  className="block bg-blue-600 text-white py-4 rounded-full font-bold text-lg hover:bg-blue-700 transition shadow-lg"
+                >
+                  ईमेल करें
+                </Link>
+              </div>
+            </div>
+
+            {/* शिकायत / भ्रष्टाचार */}
+            <div className="bg-white rounded-3xl shadow-2xl p-8 text-center hover:shadow-3xl transition border-4 border-[#ee73c4]">
+              <div className="text-6xl mb-4">Complaint</div>
+              <h3 className="text-2xl font-bold text-[#ee73c4] mb-4">शिकायत दर्ज करें</h3>
+              <p className="text-gray-600 mb-6">
+                पानी, सड़क, कचरा, अवैध निर्माण, भ्रष्टाचार — कोई भी समस्या
+              </p>
+              <div className="space-y-4">
+                <Link
+                  href="https://wa.me/919594939595?text=नमस्ते!%20मैं%20अपने%20इलाके%20में%20हो%20रही%20समस्या%20की%20शिकायत%20करना%20चाहता/चाहती%20हूँ..."
+                  target="_blank"
+                  className="block bg-red-500 text-white py-4 rounded-full font-bold text-lg hover:bg-red-600 transition shadow-lg"
+                >
+                  WhatsApp पर शिकायत करें
+                </Link>
+                <p className="text-3xl font-bold text-[#ee73c4] pt-4">
+                  9594939595
+                </p>
+              </div>
+            </div>
+
+            {/* सदस्यता / विज्ञापन */}
+            <div className="bg-white rounded-3xl shadow-2xl p-8 text-center hover:shadow-3xl transition">
+              <div className="text-6xl mb-4">Subscription</div>
+              <h3 className="text-2xl font-bold text-[#ee73c4] mb-4">सदस्यता / विज्ञापन</h3>
+              <p className="text-gray-600 mb-6">
+                मेंबर बनें, ई-पेपर, प्रिंट सब्सक्रिप्शन या विज्ञापन बुक करें
+              </p>
+              <div className="space-y-4">
+                <Link
+                  href="/member"
+                  className="block bg-[#ee73c4] text-white py-4 rounded-full font-bold text-lg hover:bg-pink-600 transition shadow-lg"
+                >
+                  मेंबर बनें
+                </Link>
+                <Link
+                  href="tel:9594939595"
+                  className="block bg-purple-600 text-white py-4 rounded-full font-bold text-lg hover:bg-purple-700 transition shadow-lg"
+                >
+                  कॉल करें: 9594939595
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* कार्यालय पता */}
+          <section className="bg-gradient-to-r from-[#ee73c4]/10 to-pink-100 rounded-3xl p-10 md:p-14 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#ee73c4] mb-8">
+              हमारा कार्यालय
+            </h2>
+            <div className="max-w-3xl mx-auto text-lg text-gray-800 space-y-4">
+              <p className="text-xl font-bold">मुंबई प्लस न्यूज़</p>
+              <p>
+                ओम शिव साई सीएचएस, ए-06,<br />
+                नियर रुनवाल एंड ओमकार एस्क्वायर,<br />
+                सायन (पूर्व), मुंबई - 400022<br />
+                महाराष्ट्र, भारत
+              </p>
+              <p className="text-xl font-bold text-[#ee73c4] pt-4">
+                RNI: MAHHI/2009/28028
               </p>
             </div>
-          </div>
 
-          <div className="container mx-auto px-4 py-16">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-              {/* Contact Information */}
-              <div className="lg:col-span-1">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Get in Touch</h2>
-                
-                <div className="space-y-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-blue-100 p-3 rounded-full">
-                      <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-800">Address</h3>
-                      <p className="text-gray-600">123 News Street<br />Media City, MC 12345</p>
-                    </div>
-                  </div>
+            {/* Google Maps Embed (ऑप्शनल) */}
+            <div className="mt-10 rounded-2xl overflow-hidden shadow-2xl max-w-4xl mx-auto">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.173!2d72.8791!3d19.0435!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7cf21d6d0e0b7%3A0x9d7e8f2d5e8e8f2d!2sSion%2C%20Mumbai!5e0!3m2!1sen!2sin!4v1730000000000"
+                width="100%"
+                height="400"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="मुंबई प्लस कार्यालय लोकेशन"
+              ></iframe>
+            </div>
+          </section>
 
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-blue-100 p-3 rounded-full">
-                      <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-800">Phone</h3>
-                      <p className="text-gray-600">+1 (555) 123-4567<br />+1 (555) 765-4321</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-blue-100 p-3 rounded-full">
-                      <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-800">Email</h3>
-                      <p className="text-gray-600">info@newshub.com<br />support@newshub.com</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-blue-100 p-3 rounded-full">
-                      <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-800">Office Hours</h3>
-                      <p className="text-gray-600">Monday - Friday: 9AM - 6PM<br />Saturday: 10AM - 4PM</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Social Media */}
-                <div className="mt-8">
-                  <h3 className="font-semibold text-gray-800 mb-4">Follow Us</h3>
-                  <div className="flex space-x-4">
-                    {['Twitter', 'Facebook', 'LinkedIn', 'Instagram'].map((social) => (
-                      <a key={social} href="#" className="bg-gray-200 hover:bg-gray-300 p-3 rounded-full transition-colors">
-                        <span className="sr-only">{social}</span>
-                        <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
-                        </svg>
-                      </a>
-                    ))}
-                  </div>
-                </div>
+          {/* संपादकीय टीम */}
+          <section className="mt-16 text-center">
+            <h2 className="text-3xl font-bold text-[#ee73c4] mb-8">संपादकीय टीम</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+              <div className="bg-white rounded-2xl p-6 shadow-xl">
+                <p className="text-lg font-bold text-gray-800">संपादक</p>
+                <p className="text-2xl font-bold text-[#ee73c4]">मोहम्मद फारुख मेवाती</p>
               </div>
-
-              {/* Contact Form */}
-              <div className="lg:col-span-2">
-                <div className="bg-white rounded-lg shadow-lg p-8">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-6">Send us a Message</h2>
-                  
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                          Full Name *
-                        </label>
-                        <input
-                          type="text"
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                          placeholder="Your full name"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                          Email Address *
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                          placeholder="your.email@example.com"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                        Subject *
-                      </label>
-                      <input
-                        type="text"
-                        id="subject"
-                        name="subject"
-                        value={formData.subject}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                        placeholder="What is this regarding?"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                        Message *
-                      </label>
-                      <textarea
-                        id="message"
-                        name="message"
-                        value={formData.message}
-                        onChange={handleChange}
-                        required
-                        rows={6}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                        placeholder="Please type your message here..."
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full bg-primary text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors font-medium"
-                    >
-                      Send Message
-                    </button>
-                  </form>
-                </div>
+              <div className="bg-white rounded-2xl p-6 shadow-xl">
+                <p className="text-lg font-bold text-gray-800">कार्यकारी संपादक</p>
+                <p className="text-2xl font-bold text-[#ee73c4]">राजेश यू. जायसवाल</p>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Map Section */}
-          <div className="container mx-auto px-4 pb-16">
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="h-96 bg-gray-200 flex items-center justify-center">
-                <div className="text-center">
-                  <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                  <p className="text-gray-500">Interactive Map Location</p>
-                  <p className="text-sm text-gray-400 mt-2">(Map integration can be added here)</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-        
-        <Footer />
-      </div>
-    </>
-  )
+          {/* अंतिम CTA */}
+          <section className="text-center mt-16 bg-[#ee73c4] text-white rounded-3xl p-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              आपकी आवाज़ हमारे लिए मायने रखती है
+            </h2>
+            <p className="text-xl mb-8">
+              कोई भी खबर, कोई भी शिकायत — हमें तुरंत बताएँ<br />
+              हम आपकी आवाज़ को मुंबई तक पहुँचाएँगे!
+            </p>
+            <Link
+              href="https://wa.me/919594939595"
+              target="_blank"
+              className="bg-white text-[#ee73c4] px-12 py-5 rounded-full text-2xl font-bold hover:bg-gray-100 transition shadow-2xl inline-block"
+            >
+              WhatsApp पर संपर्क करें
+            </Link>
+          </section>
+
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
 }
