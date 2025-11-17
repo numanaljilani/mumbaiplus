@@ -23,6 +23,7 @@ const allCategories = [
   { key: 'games', label: 'गेम्स' },
 ];
 
+export const dynamic = 'force-dynamic'
 export default function NewsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
