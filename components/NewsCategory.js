@@ -1,14 +1,17 @@
 'use client';
 import Link from 'next/link';
 
-const NewsCard = ({ id, title, excerpt, image, date, category }) => (
+const NewsCard = ({ _id, heading, description
+, image, date, category }) => {
+  console.log(image , ">>>")
+  return (
   <Link 
-    href={`/news/${id}`}
+    href={`/news/${_id}`}
     className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
   >
     <img 
-      src={image} 
-      alt={title}
+      src={`${image}`} 
+      alt={heading}
       className="w-full h-48 object-cover"
     />
     <div className="p-4">
@@ -19,9 +22,10 @@ const NewsCard = ({ id, title, excerpt, image, date, category }) => (
         <span className="text-xs text-gray-500">{date}</span>
       </div>
       <h3 className="font-bold text-lg mb-2 line-clamp-2 hover:text-blue-800 transition-colors">
-        {title}
+        {heading}
       </h3>
-      <p className="text-gray-600 text-sm line-clamp-3">{excerpt}</p>
+      <p className="text-gray-600 text-sm line-clamp-3">{description
+}</p>
       <div className="mt-4 text-blue-800 hover:text-blue-700 font-medium text-sm flex items-center">
         Read More
         <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,7 +34,7 @@ const NewsCard = ({ id, title, excerpt, image, date, category }) => (
       </div>
     </div>
   </Link>
-);
+)};
 
 export default function NewsCategory({ title, news }) {
   return (
