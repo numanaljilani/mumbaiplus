@@ -8,6 +8,7 @@ import HeroSlider from '../components/HeroSlider';
 import NewsCategory from '../components/NewsCategory';
 import Footer from '../components/Footer';
 import Link from 'next/link';
+import { server } from '../contants';
 
 // हिंदी → इंग्लिश कैटेगरी मैप
 const categoryHindiMap = {
@@ -42,8 +43,8 @@ export default function Home() {
     const fetchNews = async () => {
       try {
         const [breakingRes, wardRes] = await Promise.all([
-          fetch('http://localhost:5000/api/posts?category=politics,corruption,crime&limit=10'),
-          fetch('http://localhost:5000/api/posts?limit=10'),
+          fetch(`${server}/api/posts?category=politics,corruption,crime&limit=10`),
+          fetch(`${server}/api/posts?limit=10`),
         ]);
 
         const breakingData = await breakingRes.json();
@@ -135,16 +136,16 @@ export default function Home() {
         </div> */}
 
         {/* कैटेगरी वाइज़ न्यूज़ */}
-        <NewsCategory
+        {/* <NewsCategory
           title="आज की बड़ी खबरें"
           news={breakingNews.map((n) => ({
             ...n,
             category: categoryHindiMap[n.category] || n.category,
           }))}
-        />
+        /> */}
 
         <NewsCategory
-          title="वार्ड विशेष"
+          title="आज की बड़ी खबरें"
           news={wardNews.map((n) => ({
             ...n,
             category: n.ward || 'मुंबई',

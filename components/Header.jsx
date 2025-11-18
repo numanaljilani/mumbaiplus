@@ -8,7 +8,7 @@ export default function Header() {
 
   // मेनू आइटम्स — category वाले → /news?category=, बाकी अलग पेज
 const menuItems = [
-  { label: 'होम', category: 'home' },
+  { label: 'होम', href: '/' },
   { label: 'मुंबई', category: 'mumbai' },
   { label: 'महाराष्ट्र', category: 'maharashtra' },
   { label: 'गेम्स', category: 'games' },

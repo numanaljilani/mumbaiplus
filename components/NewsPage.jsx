@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { server } from '../contants';
 
 // English → Hindi कैटेगरी मैप (Header में इस्तेमाल होने वाले)
 const categoryMap = {
@@ -48,7 +49,7 @@ export default function NewsPage() {
       setError(false);
 
       const res = await fetch(
-        `http://localhost:5000/api/posts?category=${category}&limit=20`,
+        `${server}/api/posts?category=${category}&limit=20`,
         { cache: 'no-store' }
       );
 
@@ -152,7 +153,7 @@ export default function NewsPage() {
                 >
                   {post.image && (
                     <div className="relative h-48 overflow-hidden">
-                      <Image
+                      <img
                         src={post.image}
                         alt={post.heading || post.title}
                         fill
