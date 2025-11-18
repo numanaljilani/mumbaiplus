@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { server } from '../../../contants';
 
 const categoryHindiMap = {
   politics: 'राजनीति',
@@ -28,7 +29,7 @@ export default async function NewsDetail({ params }) {
 
   let news = null;
   try {
-    const res = await fetch(`http://localhost:5000/api/posts/${id}`, {
+    const res = await fetch(`${server}/api/posts/${id}`, {
       cache: 'no-store',
     });
     if (!res.ok) throw new Error('News not found');
