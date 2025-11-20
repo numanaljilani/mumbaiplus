@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { store } from '@/store';
+import { Provider } from 'react-redux';
+
 
 export const metadata: Metadata = {
   title: "मुंबई प्लस - मुंबई की आवाज़, अब हर दिन आपके साथ!",
@@ -61,9 +64,11 @@ export default function RootLayout({
       </head>
       
       {/* सिर्फ़ बैकग्राउंड कलर लोगो की लाल थीम से मैच किया */}
+       {/* <Provider store={store}> */}
       <body className="font-mumbai bg-white text-gray-900">
         {children}
       </body>
+      {/* </Provider> */}
     </html>
   );
 }
