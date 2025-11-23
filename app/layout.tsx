@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { store } from '@/store';
-import { Provider } from 'react-redux';
+import ReduxWrap from "@/components/ReduxWrap"
 
 
 export const metadata: Metadata = {
@@ -64,11 +63,11 @@ export default function RootLayout({
       </head>
       
       {/* सिर्फ़ बैकग्राउंड कलर लोगो की लाल थीम से मैच किया */}
-       {/* <Provider store={store}> */}
       <body className="font-mumbai bg-white text-gray-900">
+     <ReduxWrap>
         {children}
+    </ReduxWrap>
       </body>
-      {/* </Provider> */}
     </html>
   );
 }
