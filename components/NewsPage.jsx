@@ -13,7 +13,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 // RTK Query से useGetAllPostsQuery का उपयोग करें
 import { useGetAllPostsQuery } from '../service/api/api'; 
 import { Clock, Loader2, AlertTriangle, ArrowRight, LayoutList } from 'lucide-react';
-import { Suspense } from 'react';
 
 // --- Configuration ---
 
@@ -67,8 +66,13 @@ const CurrentDateDisplay = () => {
     );
 };
 
-function NewsWithUserParams(){
-const router = useRouter();
+
+// --- Main Component ---
+
+export const dynamic = 'force-dynamic';
+
+export default function NewsPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get('category') || 'home'; 
 
@@ -233,17 +237,6 @@ const router = useRouter();
     </div>
   );
 }
-// --- Main Component ---
-
-export const dynamic = 'force-dynamic';
-
-export default function NewsPage() {
-      <Suspense>
-      <NewsWithUserParams />
-    </Suspense>
-}
-
-
 
 // --- Loading State Sub-Component ---
 
