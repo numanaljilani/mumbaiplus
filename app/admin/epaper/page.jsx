@@ -1,205 +1,434 @@
-// // app/admin/epaper/page.jsx
-// 'use client';
+"use client"
+import React, { useState, useEffect, useMemo } from 'react';
+// IMPORTING YOUR ACTUAL RTK QUERY HOOKS HERE
+// सुनिश्चित करें कि ये हुक्स आपके 'api.js' या संबंधित फाइल में परिभाषित हैं।
+import { 
+    useGetAllEPapersQuery, // ई-पेपर सूची प्राप्त करने के लिए
+    useCreateEpaperMutation, // नया ई-पेपर अपलोड करने के लिए
+    useUpdateEpaperMutation, // ई-पेपर मेटाडेटा (तारीख, सक्रियता) अपडेट करने के लिए
+    useDeleteEpaperMutation // ई-पेपर डिलीट करने के लिए
+} from '../../../service/api/api'; 
 
-// import { useState, useEffect } from 'react';
-// import Link from 'next/link';
-// import Image from 'next/image';
-// import { useSearchParams, useRouter } from 'next/navigation';
-// // import useAuthStore from '@/stores/authStore'; // अपना auth store
-// import { server } from '../../../contants';
+// SVG Icons for Actions (using Lucide icons style)
+const EditIcon = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+    </svg>
+);
 
-// export default function AdminEPaperList() {
-//   const searchParams = useSearchParams();
-//   const router = useRouter();
-//   // const { token } = useAuthStore();
+const TrashIcon = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+        <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+    </svg>
+);
 
-//   const [epapers, setEpapers] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [searchDate, setSearchDate] = useState(searchParams.get('search') || '');
-//   const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1);
-//   const [totalPages, setTotalPages] = useState(1);
-//   const [error, setError] = useState('');
 
-//   const fetchEPapers = async (date = '', page = 1) => {
-//     setLoading(true);
-//     setError('');
+// Utility function to format date to Hindi
+const formatToHindi = (dateString) => {
+    try {
+        if (!dateString) return 'अज्ञात तारीख';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('hi-IN', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+    } catch (error) {
+        return dateString;
+    }
+};
 
-//     try {
-//       const params = new URLSearchParams();
-//       if (date) params.append('search', date);
-//       if (page > 1) params.append('page', page);
+// --- Main Component ---
 
-//       const res = await fetch(`${server}/api/epaper?${params}`, {
-//         headers: {
-//           // Authorization: `Bearer ${token}`,
-//           'Content-Type': 'application/json',
-//         },
-//         cache: 'no-store',
-//       });
+const EpaperAdminDashboard = () => {
+    // --- API Hook Integration ---
+    // RTK Query hooks का उपयोग करें
+    const { 
+        data: epapers, // API से प्राप्त ई-पेपर की सूची
+        isLoading: isFetching, // डेटा फेच हो रहा है या नहीं
+        isSuccess, 
+        isError,
+        refetch // सूची को मैन्युअल रूप से रीलोड करने के लिए
+    } = useGetAllEPapersQuery(); 
+    console.log(epapers , "epapers")
+    
+    // Mutation hooks
+    const [createEpaper, { isLoading: isCreating }] = useCreateEpaperMutation();
+    const [updateEpaper, { isLoading: isUpdating }] = useUpdateEpaperMutation();
+    const [deleteEpaper, { isLoading: isDeleting }] = useDeleteEpaperMutation();
 
-//       if (!res.ok) throw new Error('ई-पेपर लोड नहीं हुए');
+    // UI State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentItem, setCurrentItem] = useState(null); // Item being edited
+    const [globalMessage, setGlobalMessage] = useState(null); // Toast/Notification message
 
-//       const data = await res.json();
-//       setEpapers(data.epapers || []);
-//       setTotalPages(data.totalPages || 1);
-//       setCurrentPage(page);
+    // State for form data (Create/Update)
+    const [formData, setFormData] = useState({
+        date: '',
+        pdfFile: null, // PDF File object for upload
+        isActive: true,
+        // Read-only fields for update context
+        pdfUrl: '',
+        thumbnailUrl: '',
+    });
 
-//       // URL अपडेट करें (बिना रीलोड के)
-//       const newUrl = `/admin/epaper${params.toString() ? `?${params}` : ''}`;
-//       router.replace(newUrl, { scroll: false });
-//     } catch (err) {
-//       setError(err.message || 'कुछ गलत हुआ');
-//       setEpapers([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+    const epaperList = epapers?.epapers || []; // सुनिश्चित करें कि यह एक ऐरे है
+    const isEditing = currentItem !== null;
+    const modalTitle = isEditing ? 'ई-पेपर अपडेट करें' : 'नया ई-पेपर अपलोड करें';
+    const isLoading = isFetching || isCreating || isUpdating || isDeleting;
 
-//   // पहली बार लोड + सर्च/पेज चेंज पर
-//   useEffect(() => {
-//     if (true) {
-//       fetchEPapers(searchDate || '', currentPage);
-//     }
-//   }, [, searchDate, currentPage]);
+    // Custom Toast/Message Handler
+    const showMessage = (msg, isError = false, duration = 3000) => {
+        setGlobalMessage({ msg, isError });
+        setTimeout(() => setGlobalMessage(null), duration);
+    };
+    
+    // Error handling for initial fetch
+    useEffect(() => {
+        if (isError) {
+            showMessage("ई-पेपर सूची लोड करने में त्रुटि आई।", true, 5000);
+        }
+    }, [isError]);
 
-//   const handleSearch = (e) => {
-//     e.preventDefault();
-//     const date = e.target.search.value;
-//     setSearchDate(date);
-//     setCurrentPage(1);
-//   };
+    // --- CRUD Logic Handlers ---
 
-//   // if (!token) {
-//   //   return (
-//   //     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-//   //       <p className="text-2xl text-red-600">लॉगिन करें</p>
-//   //     </div>
-//   //   );
-//   // }
+    // CREATE/UPDATE (Save operation)
+    const handleSave = async (e) => {
+        e.preventDefault();
 
-//   return (
-//     <div className="min-h-screen bg-gray-50 py-8">
-//       <div className="container mx-auto px-4 max-w-7xl">
+        if (!formData.date || (!isEditing && !formData.pdfFile)) {
+            showMessage("तारीख और PDF फ़ाइल अनिवार्य है।", true);
+            return;
+        }
 
-//         {/* Header */}
-//         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
-//           <h1 className="text-4xl md:text-5xl font-bold text-[#ee73c4]">
-//             ई-पेपर मैनेजमेंट
-//           </h1>
-//           <Link
-//             href="/admin/epaper/upload"
-//             className="bg-[#ee73c4] text-white px-8 py-4 rounded-full font-bold hover:bg-pink-600 transition shadow-lg flex items-center gap-3 whitespace-nowrap"
-//           >
-//             नया ई-पेपर अपलोड करें
-//           </Link>
-//         </div>
+        try {
+            if (isEditing) {
+                // UPDATE: केवल मेटाडेटा (date, isActive) अपडेट करें
+                const payload = {
+                    id: currentItem.id, // ID is crucial for update mutation endpoint
+                    date: formData.date,
+                    isActive: formData.isActive,
+                };
+                await updateEpaper(payload).unwrap(); // unwrap() to handle error state
+                showMessage(`ई-पेपर ${formData.date} सफलतापूर्वक अपडेट किया गया।`);
+            } else {
+                // CREATE: FormData के साथ फ़ाइल अपलोड करें
+                const uploadFormData = new FormData();
+                uploadFormData.append('date', formData.date);
+                // Note: Boolean values in FormData might need to be converted to strings 'true'/'false'
+                uploadFormData.append('isActive', formData.isActive ? 'true' : 'false'); 
+                uploadFormData.append('pdfFile', formData.pdfFile); // PDF file
 
-//         {/* Search Bar */}
-//         <div className="bg-white rounded-3xl shadow-xl p-6 mb-10">
-//           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
-//             <input
-//               type="date"
-//               name="search"
-//               defaultValue={searchDate}
-//               className="flex-1 px-6 py-4 rounded-xl border-2 border-gray-300 focus:border-[#ee73c4] outline-none text-lg"
-//             />
-//             <button className="bg-[#ee73c4] text-white px-10 py-4 rounded-xl font-bold hover:bg-pink-600 transition shadow-lg">
-//               खोजें
-//             </button>
-//             {searchDate && (
-//               <button
-//                 type="button"
-//                 onClick={() => {
-//                   setSearchDate('');
-//                   setCurrentPage(1);
-//                 }}
-//                 className="text-red-600 hover:text-red-800 font-bold"
-//               >
-//                 सर्च हटाएँ
-//               </button>
-//             )}
-//           </form>
-//         </div>
+                // Note: The createEpaper mutation must be configured to accept FormData
+                await createEpaper(uploadFormData).unwrap();
+                showMessage(`नया ई-पेपर ${formData.date} सफलतापूर्वक अपलोड किया गया।`);
+            }
+            
+            // RTK Query आमतौर पर टैग इनवैलिडेशन द्वारा कैशे को अपडेट करता है, 
+            // इसलिए refetch() की शायद ज़रूरत न हो, लेकिन यह एक फॉलबैक है।
+            // refetch(); 
+            resetFormAndCloseModal();
 
-//         {/* Loading */}
-//         {loading && (
-//           <div className="text-center py-20">
-//             <div className="inline-block animate-spin rounded-full h-16 w-16 border-8 border-[#ee73c4] border-t-transparent"></div>
-//             <p className="mt-6 text-2xl text-gray-600">लोड हो रहा है...</p>
-//           </div>
-//         )}
+        } catch (error) {
+            console.error("सेव करने में त्रुटि:", error);
+            const errorMessage = error?.data?.message || error?.error || 'अज्ञात त्रुटि';
+            showMessage(`सेव करने में त्रुटि: ${errorMessage}`, true, 5000);
+        }
+    };
 
-//         {/* Error */}
-//         {error && !loading && (
-//           <div className="text-center py-20 bg-red-50 rounded-3xl">
-//             <p className="text-2xl text-red-600 font-bold">{error}</p>
-//           </div>
-//         )}
+    // DELETE
+    const handleDelete = async (id, date) => {
+        // IMPORTANT: Use a custom modal instead of window.confirm in real apps
+        // Replacing window.confirm with a custom modal is recommended, but for this exercise, 
+        // using confirm() for a quick fix based on the original code, but adding a note.
+        // NOTE: Please replace the standard 'confirm' with a custom modal component for production apps.
+        if (!confirm(`क्या आप वाकई ${formatToHindi(date)} का ई-पेपर हटाना चाहते हैं?`)) return;
 
-//         {/* Empty State */}
-//         {!loading && !error && epapers.length === 0 && (
-//           <div className="text-center py-20 bg-white rounded-3xl shadow">
-//             <p className="text-3xl text-gray-500">कोई ई-पेपर नहीं मिला</p>
-//             <p className="text-xl text-gray-400 mt-4">
-//               {searchDate ? 'इस तारीख का अखबार नहीं है' : 'अभी तक कोई ई-पेपर अपलोड नहीं हुआ'}
-//             </p>
-//           </div>
-//         )}
+        try {
+            await deleteEpaper(id).unwrap();
+            showMessage(`ई-पेपर ${date} सफलतापूर्वक डिलीट किया गया।`);
+            // refetch(); 
+        } catch (error) {
+            console.error("डिलीट करने में त्रुटि:", error);
+            const errorMessage = error?.data?.message || error?.error || 'अज्ञात त्रुटि';
+            showMessage(`डिलीट करने में त्रुटि: ${errorMessage}`, true, 5000);
+        }
+    };
 
-//         {/* Grid */}
-//         {!loading && !error && epapers.length > 0 && (
-//           <>
-//             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6">
-//               {epapers.map((paper) => (
-//                 <div
-//                   key={paper._id}
-//                   className="group bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2"
-//                 >
-//                   <Link href={`/admin/epaper/${paper._id}`}>
-//                     <div className="relative aspect-[3/4] bg-gray-100">
-//                       <Image
-//                         src={paper.thumbnailUrl}
-//                         alt={paper.formattedDate}
-//                         fill
-//                         className="object-cover group-hover:scale-110 transition duration-300"
-//                       />
-//                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
-//                     </div>
-//                     <div className="p-4 bg-gradient-to-r from-[#ee73c4] to-pink-600 text-white text-center">
-//                       <p className="font-bold text-lg leading-tight">{paper.formattedDate}</p>
-//                     </div>
-//                   </Link>
-//                 </div>
-//               ))}
-//             </div>
+    // --- Modal and Form Handlers ---
 
-//             {/* Pagination */}
-//             {totalPages > 1 && (
-//               <div className="flex justify-center items-center gap-6 mt-16 flex-wrap">
-//                 <button
-//                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-//                   disabled={currentPage === 1}
-//                   className="px-10 py-4 bg-[#ee73c4] text-white rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-pink-600 transition shadow-lg"
-//                 >
-//                   पिछला
-//                 </button>
+    const handleOpenCreateModal = () => {
+        setCurrentItem(null);
+        setFormData({ date: '', pdfFile: null, isActive: true, pdfUrl: '', thumbnailUrl: '' });
+        setIsModalOpen(true);
+    };
 
-//                 <span className="text-2xl font-bold text-gray-700">
-//                   पेज <span className="text-[#ee73c4]">{currentPage}</span> / {totalPages}
-//                 </span>
+    const handleOpenEditModal = (epaper) => {
+        setCurrentItem(epaper);
+        setFormData({
+            date: epaper.date,
+            pdfFile: null, 
+            pdfUrl: epaper.pdfUrl,
+            thumbnailUrl: epaper.thumbnailUrl,
+            isActive: epaper.isActive,
+        });
+        setIsModalOpen(true);
+    };
 
-//                 <button
-//                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-//                   disabled={currentPage === totalPages}
-//                   className="px-10 py-4 bg-[#ee73c4] text-white rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-pink-600 transition shadow-lg"
-//                 >
-//                   अगला
-//                 </button>
-//               </div>
-//             )}
-//           </>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
+    const resetFormAndCloseModal = () => {
+        setCurrentItem(null);
+        setFormData({ date: '', pdfFile: null, pdfUrl: '', thumbnailUrl: '', isActive: true });
+        setIsModalOpen(false);
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value, type, checked, files } = e.target;
+        if (type === 'file') {
+            setFormData(prev => ({ ...prev, pdfFile: files[0] }));
+        } else if (type === 'checkbox') {
+            setFormData(prev => ({ ...prev, [name]: checked }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
+    };
+
+    // --- Render Component ---
+
+    return (
+        <div className="min-h-screen bg-gray-50 font-inter py-8">
+            
+            {/* Global Loading Overlay */}
+            {isLoading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-70 backdrop-blur-sm">
+                    <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-2xl">
+                        <svg className="animate-spin h-8 w-8 text-yellow-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <p className="text-gray-700 font-semibold">
+                            {isFetching && 'डेटा लोड हो रहा है...'}
+                            {isCreating && 'अपलोड हो रहा है...'}
+                            {isUpdating && 'अपडेट हो रहा है...'}
+                            {isDeleting && 'डिलीट हो रहा है...'}
+                        </p>
+                    </div>
+                </div>
+            )}
+            
+            {/* Global Message/Toast */}
+            {globalMessage && (
+                <div 
+                    className={`fixed top-4 right-4 z-50 p-4 text-white rounded-lg shadow-xl transition-all duration-300 ${
+                        globalMessage.isError ? 'bg-red-600' : 'bg-green-600'
+                    }`}
+                >
+                    {globalMessage.msg}
+                </div>
+            )}
+
+            <main className="container mx-auto px-4 max-w-7xl">
+
+                {/* Header & Controls */}
+                <div className="flex flex-col sm:flex-row justify-between items-center mb-8 p-6 bg-white rounded-2xl shadow-lg border-b-4 border-yellow-600/70">
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-4 sm:mb-0">
+                        ई-पेपर एडमिन डैशबोर्ड
+                    </h1>
+                    <button
+                        onClick={handleOpenCreateModal}
+                        className="w-full sm:w-auto bg-yellow-600 text-gray-900 px-6 py-3 rounded-full font-bold shadow-md hover:bg-yellow-700 hover:text-white transition duration-300 transform hover:scale-105 text-sm md:text-base flex items-center justify-center space-x-2"
+                        disabled={isLoading}
+                    >
+                         {/* Plus Icon using SVG for a modern look */}
+                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>नया ई-पेपर अपलोड करें</span>
+                    </button>
+                </div>
+
+                {/* Epaper List */}
+                <div className="bg-white rounded-xl shadow-xl overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider hidden sm:table-cell">तारीख (फाइल)</th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">तारीख (हिन्दी)</th>
+                                <th className="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider hidden md:table-cell">प्रीव्यू</th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider hidden lg:table-cell">स्थिति</th>
+                                <th className="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">एक्शन</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-100">
+                            {epaperList.length > 0 ? (
+                                epaperList.map((epaper) => (
+                                    <tr key={epaper.id} className="hover:bg-yellow-50/50 transition">
+                                        
+                                        {/* Date (Raw) */}
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium hidden sm:table-cell">
+                                            {epaper.date}
+                                        </td>
+                                        
+                                        {/* Date (Hindi Virtual) */}
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            {formatToHindi(epaper.date)}
+                                        </td>
+                                        
+                                        {/* Thumbnail */}
+                                        <td className="px-6 py-4 whitespace-nowrap text-center hidden md:table-cell">
+                                            <a href={epaper.pdfUrl} target="_blank" rel="noopener noreferrer">
+                                                {/* Note: Thumbnail is assumed to be provided by the API post-upload */}
+                                                <img 
+                                                    className="h-16 w-auto inline-block rounded border hover:opacity-80 transition" 
+                                                    src={epaper.thumbnailUrl || "https://placehold.co/150x200/CCC/000?text=No+Thumb"} 
+                                                    alt={`Thumbnail for ${epaper.date}`} 
+                                                    onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/150x200/CCC/000?text=No+Thumb"; }}
+                                                />
+                                            </a>
+                                        </td>
+                                        
+                                        {/* Status */}
+                                        <td className="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                                            <span 
+                                                className={`px-3 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                                    epaper.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                }`}
+                                            >
+                                                {epaper.isActive ? 'सक्रिय' : 'निष्क्रिय'}
+                                            </span>
+                                        </td>
+
+                                        {/* Actions: Replaced Text with Icons */}
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                            {/* Update Button (Pencil Icon) */}
+                                            <button
+                                                onClick={() => handleOpenEditModal(epaper)}
+                                                className="p-2 inline-flex items-center justify-center rounded-full bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition duration-200 shadow-md disabled:opacity-50"
+                                                disabled={isLoading}
+                                                aria-label={`अपडेट करें ${epaper.date}`}
+                                                title={`अपडेट करें ${formatToHindi(epaper.date)}`}
+                                            >
+                                                <EditIcon className="w-4 h-4" />
+                                            </button>
+                                            
+                                            {/* Delete Button (Trash Icon) */}
+                                            <button
+                                                onClick={() => handleDelete(epaper.id, epaper.date)}
+                                                className="p-2 inline-flex items-center justify-center rounded-full bg-red-100 text-red-600 hover:bg-red-600 hover:text-white transition duration-200 shadow-md disabled:opacity-50"
+                                                disabled={isLoading}
+                                                aria-label={`डिलीट करें ${epaper.date}`}
+                                                title={`डिलीट करें ${formatToHindi(epaper.date)}`}
+                                            >
+                                                <TrashIcon className="w-4 h-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
+                                        {isFetching ? 'ई-पेपर लोड हो रहा है...' : 'कोई ई-पेपर रिकॉर्ड नहीं मिला।'}
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+
+            {/* Modal for Create/Update */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl p-8 transform transition-all scale-100">
+                        
+                        {/* Modal Header */}
+                        <div className="flex justify-between items-center border-b pb-3 mb-6">
+                            <h2 className="text-2xl font-bold text-gray-800">{modalTitle}</h2>
+                            <button onClick={resetFormAndCloseModal} className="text-gray-500 hover:text-gray-800 text-3xl font-light">
+                                &times;
+                            </button>
+                        </div>
+                        
+                        {/* Form */}
+                        <form onSubmit={handleSave}>
+                            <div className="mb-4">
+                                <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">तारीख <span className="text-red-500">*</span></label>
+                                <input
+                                    type="date"
+                                    id="date"
+                                    name="date"
+                                    value={formData.date}
+                                    onChange={handleInputChange}
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
+                                    required
+                                    disabled={isLoading}
+                                />
+                            </div>
+
+                            {!isEditing && (
+                                <div className="mb-4">
+                                    <label htmlFor="pdfFile" className="block text-sm font-medium text-gray-700 mb-2">PDF फ़ाइल अपलोड करें <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="file"
+                                        id="pdfFile"
+                                        name="pdfFile"
+                                        accept="application/pdf"
+                                        onChange={handleInputChange}
+                                        className="w-full p-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200"
+                                        required={!isEditing}
+                                        disabled={isLoading}
+                                    />
+                                    {formData.pdfFile && (
+                                        <p className="mt-2 text-sm text-gray-500">चुनी गई फ़ाइल: {formData.pdfFile.name}</p>
+                                    )}
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        * यह फ़ाइल **FormData** के रूप में API को भेजी जाएगी, जहाँ backend इसे क्लाउड स्टोरेज (जैसे Cloudinary) पर अपलोड करेगा।
+                                    </p>
+                                </div>
+                            )}
+
+                            {isEditing && (
+                                <div className="mb-4 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
+                                    <p className="text-sm font-medium text-gray-700 mb-2">मौजूदा PDF और थंबनेल URL:</p>
+                                    <a href={formData.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all text-xs">
+                                        PDF: {formData.pdfUrl || 'N/A'}
+                                    </a>
+                                    <p className="mt-1">
+                                        <a href={formData.thumbnailUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all text-xs">
+                                            Thumbnail: {formData.thumbnailUrl || 'N/A'}
+                                        </a>
+                                    </p>
+                                    <p className="mt-3 text-xs text-red-500">
+                                        * **अपडेट** मोड में, हम केवल मेटाडेटा (तारीख और सक्रियता) को अपडेट कर रहे हैं। फ़ाइल को बदलने के लिए एक नया अपलोड ऑपरेशन (Create) करना या एक अलग 'अपलोड फाइल' API का उपयोग करना उचित होता है।
+                                    </p>
+                                </div>
+                            )}
+                            
+                            <div className="mb-6">
+                                <label htmlFor="isActive" className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        id="isActive"
+                                        name="isActive"
+                                        checked={formData.isActive}
+                                        onChange={handleInputChange}
+                                        className="h-4 w-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                                        disabled={isLoading}
+                                    />
+                                    <span className="text-sm font-medium text-gray-700">ई-पेपर सक्रिय (Active) है?</span>
+                                </label>
+                                <p className="text-xs text-gray-500 mt-1">यह निर्धारित करता है कि यह पब्लिक व्यूअर को दिखेगा या नहीं।</p>
+                            </div>
+
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full bg-yellow-600 text-gray-900 py-3 rounded-full font-bold text-lg hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition shadow-lg"
+                            >
+                                {isLoading ? 'सेव हो रहा है...' : (isEditing ? 'अपडेट करें' : 'अपलोड और सेव करें')}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default EpaperAdminDashboard;

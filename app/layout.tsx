@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ReduxWrap from "@/components/ReduxWrap"
-
+import Header from "@/components/Header"
 
 export const metadata: Metadata = {
   title: "मुंबई प्लस - मुंबई की आवाज़, अब हर दिन आपके साथ!",
@@ -65,6 +65,7 @@ export default function RootLayout({
       {/* सिर्फ़ बैकग्राउंड कलर लोगो की लाल थीम से मैच किया */}
       <body className="font-mumbai bg-white text-gray-900">
      <ReduxWrap>
+      <Header/>
         {children}
     </ReduxWrap>
       </body>

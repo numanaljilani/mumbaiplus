@@ -1,128 +1,91 @@
 // Need to use the React-specific entry point to import createApi
-import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
-import {server} from "@/contants"
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { server } from "@/contants";
 // import type { Pokemon } from './types'
 
 // Define a service using a base URL and expected endpoints
 export const apis = createApi({
-  reducerPath: 'apis',
+  reducerPath: "apis",
   baseQuery: fetchBaseQuery({
     baseUrl: `${server}/api`,
-    prepareHeaders: (headers, {getState}) => {
+    prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any)?.user?.token;
-      console.log(token, 'INSIDE TOKEN');
+      console.log(token, "INSIDE TOKEN");
 
       if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
+        headers.set("Authorization", `Bearer ${token}`);
       }
       return headers;
     },
   }),
 
-  endpoints: builder => ({
+  endpoints: (builder) => ({
     isAvailable: builder.mutation({
-      query: args => {
-        console.log(args, '>>>>>>>');
+      query: (args) => {
+        console.log(args, ">>>>>>>");
         return {
-          url: '/isAvailable',
-          method: 'POST',
+          url: "/isAvailable",
+          method: "POST",
           body: args,
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         };
       },
     }),
     login: builder.mutation({
-      query: args => {
-        console.log(args, '>>>>>>>');
+      query: (args) => {
+        console.log(args, ">>>>>>>");
         return {
-          url: '/auth/login',
-          method: 'POST',
+          url: "/auth/login",
+          method: "POST",
           body: args,
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         };
       },
     }),
-        googleAuth: builder.mutation({
+    googleAuth: builder.mutation({
       query: ({ token }) => ({
-        url: 'auth/google',
-        method: 'POST',
+        url: "auth/google",
+        method: "POST",
         body: { token },
       }),
     }),
     me: builder.mutation({
-      query: args => {
+      query: (args) => {
         return {
-          url: '/me',
-          method: 'GET',
+          url: "/me",
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-          },
-        };
-      },
-    }),
-    deleteMyAccount: builder.mutation({
-      query: args => {
-        return {
-          url: `/delete-user/${args.id}`,
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         };
       },
     }),
 
-    becomeContractor: builder.mutation({
-      query: ({id, data}) => {
+    registerReporter: builder.mutation({
+      query: (args) => {
+        console.log(args, ">>>>>>>");
         return {
-          url: `/user/${id}/become-contractor`,
-          method: 'POST',
-          body: data,
-          // headers: {
-          //   'Content-type': 'multipart/form-data; charset=UTF-8',
-          // },
-        };
-      },
-    }),
-    completeProfile: builder.mutation({
-      query: args => {
-        console.log(args.body, '>>>>>>>');
-        return {
-          url: '/register-with-image',
-          method: 'POST',
-          body: args.body,
-          // headers: {
-          //   'Content-type': 'application/json',
-          // },
-        };
-      },
-    }),
-    completeContractorRegistration: builder.mutation({
-      query: args => {
-        console.log(args.body, '>>>>>>>');
-        return {
-          url: '/register-contractor',
-          method: 'POST',
-          body: args.body,
+          url: "/auth/register",
+          method: "POST",
+          body: args,
           headers: {
-            'Content-type': 'multipart/form-data; charset=UTF-8',
-            Authorization: `Bearer ${args.token}`,
+            "Content-type": "application/json",
           },
         };
       },
     }),
+
     updateProfile: builder.mutation({
-      query: ({data, id}) => {
-        console.log(data, 'ISIDE API');
+      query: ({ data, id }) => {
+        console.log(data, "ISIDE API");
         return {
           url: `/update-with-image`,
-          method: 'PUT',
+          method: "PUT",
           body: data,
-       
 
           // headers: {
           //     'Content-type': 'multipart/form-data; charset=UTF-8',
@@ -131,57 +94,76 @@ export const apis = createApi({
       },
     }),
     uploadPost: builder.mutation({
-      query: args => {
-        console.log(args.body, '>>>>>>>');
-        console.log(args.token, '>>>>>>> token');
+      query: (args) => {
+        console.log(args.body, ">>>>>>>");
+        console.log(args.token, ">>>>>>> token");
         return {
-          url: '/postimage',
-          method: 'POST',
+          url: "/postimage",
+          method: "POST",
           body: args.body,
           headers: {
-            'Content-type': 'multipart/form-data; charset=UTF-8',
+            "Content-type": "multipart/form-data; charset=UTF-8",
             Authorization: `Bearer ${args.token}`,
           },
         };
       },
     }),
 
-    // Workers
-    contractorDetails: builder.mutation({
-      query: ({id}) => {
-        return {
-          url: `/contractors/${id}`,
-          method: 'GET',
-          headers: {
-            'Content-type': 'multipart/form-data; charset=UTF-8',
-          },
-        };
+    // reportes
+    // 1. GET ALL: सभी रिपोर्टर प्राप्त करें
+    getReporters: builder.query({
+      query: () => "reporters",
+      // यहाँ परिवर्तन करें:
+      transformResponse: (response) => {
+        // response.data (Array) को सीधे कंपोनेंट में भेजें
+        // आप यहाँ pagination मेटाडेटा को भी हैंडल कर सकते हैं यदि आवश्यक हो
+        return response.data;
       },
-    }),
-    getContractors: builder.mutation({
-      query: ({service}) => {
-        console.log(service)
-        return {
-          url: `/contractors/?service=${service || ''}`,
-          method: 'GET',
-          headers: {
-            'Content-type': 'multipart/form-data; charset=UTF-8',
-          },
-        };
-      },
+      // ... अन्य सेटिंग्स...
     }),
 
+    updateReporter: builder.mutation({
+      /**
+       * @param {{ id: string, status?: 'active' | 'suspended', isVerified?: boolean }} patch
+       */
+      query: ({ id, ...patch }: any) => ({
+        url: `reporters/${id}`, // BASE_URL + '/reporters/{id}' पर PATCH/PUT अनुरोध
+        method: "PATCH",
+        body: patch,
+      }),
+      // सफलता पर कैश में 'Reporters' टैग को अमान्य करें,
+      // ताकि getReporters query स्वचालित रूप से डेटा रिफ्रेश कर सके।
+    }),
+
+    deleteReporter: builder.mutation({
+      query: (id) => ({
+        url: `reporters/${id}`, // BASE_URL + '/reporters/{id}' पर DELETE अनुरोध
+        method: "DELETE",
+      }),
+      // सफलता पर LIST टैग को अमान्य करें
+    }),
 
     // सभी पोस्ट्स (पेंडिंग + अप्रूव्ड)
+    getPosts: builder.query({
+      query: ({ page = 1, search = "", status = "", category = "all" }) =>
+        `/posts?category=${category}&page=${page}&search=${search}&status=${status}`,
+      // providesTags: ['Post'],
+    }),
+    getBreakingNews: builder.query({
+      query: () =>
+        `/posts/breaking`,
+      // providesTags: ['Post'],
+    }),
+    // सभी पोस्ट्स (पेंडिंग + अप्रूव्ड)
     getAllPosts: builder.query({
-      query: ({ page = 1, search = '', status = '' }) => 
+      query: ({ page = 1, search = "", status = "" }) =>
         `/posts/admin/all?page=${page}&search=${search}&status=${status}`,
       // providesTags: ['Post'],
     }),
     approvePost: builder.mutation({
       query: (id) => ({
         url: `/posts/${id}/approve`,
-        method: 'PATCH',
+        method: "PATCH",
       }),
       // invalidatesTags: ['Post'],
     }),
@@ -189,53 +171,64 @@ export const apis = createApi({
     deletePost: builder.mutation({
       query: (id) => ({
         url: `/posts/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
       // invalidatesTags: ['Post'],
     }),
 
     // अपडेट
+    post: builder.mutation({
+      query: (data) => ({
+        url: `/posts`,
+        method: "POST",
+        body: data,
+      }),
+    }),
+    // अपडेट
     updatePost: builder.mutation({
       query: ({ id, ...body }) => ({
         url: `/posts/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body,
       }),
       // invalidatesTags: ['Post'],
     }),
 
-    bookmark: builder.mutation({
-      query: ({userId, contractorId}) => {
-        console.log({userId, contractorId});
-        return {
-          url: `/bookmarks/${contractorId}/?userId=${
-            userId || ''
-          }&contractorId=${contractorId || ''}`,
-          method: 'POST',
-          headers: {
-            'Content-type': 'multipart/form-data; charset=UTF-8',
-          },
-        };
-      },
+
+     getAllEPapers: builder.query({
+      query: () =>
+        `/epaper`,
+     
     }),
-    myBookmark: builder.mutation({
-      query: ({userId}) => {
-        console.log({userId});
-        return {
-          url: `/bookmarks/?userId=${userId || ''}`,
-          method: 'GET',
-          headers: {
-            'Content-type': 'application/jsona; charset=UTF-8',
-          },
-        };
-      },
+     getEPaper: builder.query({
+      query: (date) =>
+        `/epaper/epaper-by-date?date=${date} `,
+      // providesTags: ['Post'],
     }),
-     report: builder.mutation({
-      query: (body) => ({
-        url: 'report',
-        method: 'POST',
+
+    createEpaper: builder.mutation({
+      query: (data) =>{
+        console.log(data , "DATA")
+        return  ({
+        url: `/epaper`,
+        method: "POST",
+        body: data,
+      })},
+    }),
+        updateEpaper: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/epaper/${id}`,
+        method: "PUT",
         body,
       }),
+    }),
+
+     deleteEpaper: builder.mutation({
+      query: (id) => ({
+        url: `/epaper/${id}`,
+        method: "DELETE",
+      }),
+      // invalidatesTags: ['Post'],
     }),
   }),
 });
@@ -244,29 +237,32 @@ export const apis = createApi({
 // auto-generated based on the defined endpoints
 export const {
   useUpdateProfileMutation,
-  useCompleteProfileMutation,
-  useDeleteMyAccountMutation,
   useGoogleAuthMutation,
-  useReportMutation,
 
   useUploadPostMutation,
-  useCompleteContractorRegistrationMutation,
   useLoginMutation,
   useMeMutation,
   useIsAvailableMutation,
 
-
   useGetAllPostsQuery,
+  useLazyGetAllPostsQuery,
+  usePostMutation,
   useApprovePostMutation,
   useDeletePostMutation,
   useUpdatePostMutation,
+useGetBreakingNewsQuery,
+  // Reporters
+  useRegisterReporterMutation,
+  useGetReportersQuery,
+  useUpdateReporterMutation,
+  useDeleteReporterMutation,
 
-  // contractors
-  useGetContractorsMutation,
-  useContractorDetailsMutation,
-
-  useBecomeContractorMutation,
-
-  useBookmarkMutation,
-  useMyBookmarkMutation,
+  // epaper 
+  useCreateEpaperMutation,
+  useGetAllEPapersQuery,
+  useGetEPaperQuery,
+  useDeleteEpaperMutation,
+  useGetPostsQuery,
+  useUpdateEpaperMutation,
+  
 } = apis;
